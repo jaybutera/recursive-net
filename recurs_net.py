@@ -12,10 +12,12 @@ class RecNet:
 # Abstract network
 class ARN (RecNet):
     def __init__ (self, nodes, level):
+        size = 3
+
         # Weight matrices
-        self.W_i  = np.random.rand((3,3), dtype=np.float32)
-        self.W_ih = np.random.rand((3,3), dtype=np.float32)
-        self.W_ho = np.random.rand((3,3), dtype=np.float32)
+        self.W_i  = np.random.rand(size*size,size), dtype=np.float32)
+        self.W_ih = np.random.rand((size,size), dtype=np.float32)
+        self.W_ho = np.random.rand((size,size), dtype=np.float32)
 
         if level < 1: # Base case
             self.input_nodes  = [BRN(nodes) for i in range(nodes)]
@@ -46,28 +48,22 @@ class ARN (RecNet):
 
 # Base node
 class BRN (RecNet):
-    #def __init__ (self, 
+    def __init__ (self, nodes):
+        # Weight matrices
+        self.W_i  = np.random.rand((size*size,size), dtype=np.float32)
+        self.W_ih = np.random.rand((size,size), dtype=np.float32)
+        self.W_ho = np.random.rand((size,size), dtype=np.float32)
+
     def sigmoid (self, x):
         return 1. / (1. + np.exp(-x))
 
     def activate (self, x):
-        i = np.sigmoid( np.dot(self.W_i, x) )
-        h = np.sigmoid( np.dot(self.W_ih, i) )
-        o = np.sigmoid( np.dot(self.W_ho, o) )
+        i = self.sigmoid( np.dot(self.W_i, x) )
+        h = self.sigmoid( np.dot(self.W_ih, i) )
+        o = self.sigmoid( np.dot(self.W_ho, o) )
 
         return o
 
-    def __rmul__ (self, o):
-        return 
-
-RecNet.register(ARN)
-RecNet.register(BRN)
-
-class ARN:
-    def __init__ (self, nodes):
-        self.input_nodes  = [ARN(nodes) for i in range(nodes)]
-        self.hidden_nodes = [ARN(nodes) for i in range(nodes)]
-        self.output_nodes = [ARN(nodes) for i in range(nodes)]
-
-class BRN:
-    def __init__ (self, nodes):
+if __name__ == '__main__':
+    nn = ARN(3, 2)
+    nn.activate(
