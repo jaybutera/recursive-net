@@ -11,23 +11,21 @@ class RecNet:
 
 # Abstract network
 class ARN (RecNet):
-    def __init__ (self, nodes, level):
-        size = 3
-
+    def __init__ (self, nodes, inputs, level):
         # Weight matrices
-        self.W_i  = np.random.rand(size,size)
-        self.W_ih = np.random.rand(size,size)
-        self.W_ho = np.random.rand(size,size)
-        self.W_oo = np.random.rand(1,size)
+        self.W_i  = np.random.rand(nodes,inputs)
+        self.W_ih = np.random.rand(nodes,nodes)
+        self.W_ho = np.random.rand(nodes,nodes)
+        self.W_oo = np.random.rand(1,nodes)
 
         if level <= 1: # Base case
-            self.input_nodes  = [BRN(nodes) for i in range(nodes)]
-            self.hidden_nodes = [BRN(nodes) for i in range(nodes)]
-            self.output_nodes = [BRN(nodes) for i in range(nodes)]
+            self.input_nodes  = [BRN(nodes, inputs) for i in range(nodes)]
+            self.hidden_nodes = [BRN(nodes, nodes) for i in range(nodes)]
+            self.output_nodes = [BRN(nodes, nodes) for i in range(nodes)]
         else:
-            self.input_nodes  = [ARN(nodes, level-1) for i in range(nodes)]
-            self.hidden_nodes = [ARN(nodes, level-1) for i in range(nodes)]
-            self.output_nodes = [ARN(nodes, level-1) for i in range(nodes)]
+            self.input_nodes  = [ARN(nodes, inputs, level-1) for i in range(nodes)]
+            self.hidden_nodes = [ARN(nodes, nodes, level-1) for i in range(nodes)]
+            self.output_nodes = [ARN(nodes, nodes, level-1) for i in range(nodes)]
 
     def sigmoid (self, x):
         return np.divide(1., np.add(1., np.exp(-x)))
@@ -52,14 +50,12 @@ class ARN (RecNet):
 
 # Base node
 class BRN (RecNet):
-    def __init__ (self, nodes):
-        size = 3
-
+    def __init__ (self, nodes, inputs):
         # Weight matrices
-        self.W_i  = np.random.rand(size,size)
-        self.W_ih = np.random.rand(size,size)
-        self.W_ho = np.random.rand(size,size)
-        self.W_oo = np.random.rand(1,size)
+        self.W_i  = np.random.rand(nodes,inputs)
+        self.W_ih = np.random.rand(nodes,nodes)
+        self.W_ho = np.random.rand(nodes,nodes)
+        self.W_oo = np.random.rand(1,nodes)
 
     def sigmoid (self, x):
         return 1. / (1. + np.exp(-x))
@@ -69,10 +65,9 @@ class BRN (RecNet):
         h = self.sigmoid( np.dot(self.W_ih, i) )
         o = self.sigmoid( np.dot(self.W_ho, h) )
         o_flat = self.sigmoid( np.dot(self.W_oo, o) )
-        print('o_flat: ', o_flat.flatten())
 
         return o_flat.flatten()[0]
 
 if __name__ == '__main__':
-    nn = ARN(3, 2)
-    nn.activate( np.random.rand(3,1) )
+    nn = ARN(3,8, 2)
+    print( nn.activate( np.random.rand(8,1) ) )
