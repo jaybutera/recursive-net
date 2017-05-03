@@ -12,6 +12,8 @@ class RecNet:
 # Abstract network
 class ARN (RecNet):
     def __init__ (self, nodes, level):
+        # Weight matrices
+        self.W_i  = np.random.rand((3,3), dtype=np.float32)
         self.W_ih = np.random.rand((3,3), dtype=np.float32)
         self.W_ho = np.random.rand((3,3), dtype=np.float32)
 
@@ -33,23 +35,27 @@ class ARN (RecNet):
         i = np.array([ x.activate(inp_inputs) for x in self.input_nodes ])
 
         # Compute hidden layer
-        hid_inputs = np.dot(W_ih, inps)
+        hid_inputs = np.dot(self.W_ih, inps)
         h = np.array([ x.activate(hid_inputs) for x in self.hidden_nodes ])
 
         # Compute output layer
-        out_inputs = np.dot(W_ho, h)
+        out_inputs = np.dot(self.W_ho, h)
         outs = np.array([ x.activate(out_inputs) for x in self.output_nodes ])
 
         return self.sigmoid( outs )
 
 # Base node
 class BRN (RecNet):
-    def __init__ (self, 
+    #def __init__ (self, 
     def sigmoid (self, x):
         return 1. / (1. + np.exp(-x))
 
     def activate (self, x):
-        return sigmoid(x)
+        i = np.sigmoid( np.dot(self.W_i, x) )
+        h = np.sigmoid( np.dot(self.W_ih, i) )
+        o = np.sigmoid( np.dot(self.W_ho, o) )
+
+        return o
 
     def __rmul__ (self, o):
         return 
