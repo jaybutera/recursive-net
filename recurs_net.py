@@ -15,9 +15,10 @@ class ARN (RecNet):
         size = 3
 
         # Weight matrices
-        self.W_i  = np.random.rand(size,size*size)
+        self.W_i  = np.random.rand(size,size)
         self.W_ih = np.random.rand(size,size)
         self.W_ho = np.random.rand(size,size)
+        self.W_oo = np.random.rand(1,size)
 
         if level <= 1: # Base case
             self.input_nodes  = [BRN(nodes) for i in range(nodes)]
@@ -44,7 +45,10 @@ class ARN (RecNet):
         out_inputs = np.dot(self.W_ho, h)
         outs = np.array([ x.activate(out_inputs) for x in self.output_nodes ])
 
-        return self.sigmoid( outs )
+        out_point = self.sigmoid( np.dot(self.W_oo, outs) )
+
+        return out_point
+        #return self.sigmoid( outs )
 
 # Base node
 class BRN (RecNet):
@@ -52,9 +56,10 @@ class BRN (RecNet):
         size = 3
 
         # Weight matrices
-        self.W_i  = np.random.rand(size,size*size)
+        self.W_i  = np.random.rand(size,size)
         self.W_ih = np.random.rand(size,size)
         self.W_ho = np.random.rand(size,size)
+        self.W_oo = np.random.rand(1,size)
 
     def sigmoid (self, x):
         return 1. / (1. + np.exp(-x))
@@ -63,9 +68,11 @@ class BRN (RecNet):
         i = self.sigmoid( np.dot(self.W_i, x) )
         h = self.sigmoid( np.dot(self.W_ih, i) )
         o = self.sigmoid( np.dot(self.W_ho, h) )
+        o_flat = self.sigmoid( np.dot(self.W_oo, o) )
+        print('o_flat: ', o_flat.flatten())
 
-        return o.flatten()
+        return o_flat.flatten()[0]
 
 if __name__ == '__main__':
     nn = ARN(3, 2)
-    nn.activate( np.random.rand(9,1) )
+    nn.activate( np.random.rand(3,1) )
